@@ -1,5 +1,10 @@
 #include <stdlib.h>
 #include <gl\glut.h>
+#include <Xinput.h>
+#include <stdio.h>
+
+#define W 6                        /* ínñ ÇÃïùÇÃÇQï™ÇÃÇPÅ@ */
+#define D 9                        /* ínñ ÇÃí∑Ç≥ÇÃÇQï™ÇÃÇP */
 
 GLdouble vertex[][3] = {
 	{ 0.0, 0.0, 0.0 },
@@ -46,6 +51,29 @@ GLfloat light1pos[] = { 5.0, 3.0, 0.0, 1.0 };
 GLfloat green[] = { 0.0, 1.0, 0.0, 1.0 };
 GLfloat red[] = { 0.8, 0.2, 0.2, 1.0 };
 GLfloat blue[] = { 0.2, 0.2, 0.8, 1.0 };
+
+static void myGround(double height)
+{
+	const static GLfloat ground[][4] = {
+		{ 0.6, 0.6, 0.6, 1.0 },
+		{ 0.3, 0.3, 0.3, 1.0 }
+	};
+
+	int i, j;
+
+	glBegin(GL_QUADS);
+	glNormal3d(0.0, 1.0, 0.0);
+	for (j = -D; j < D; ++j) {
+		for (i = -W; i < W; ++i) {
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, ground[(i + j) & 1]);
+			glVertex3d((GLdouble)i, height, (GLdouble)j);
+			glVertex3d((GLdouble)i, height, (GLdouble)(j + 1));
+			glVertex3d((GLdouble)(i + 1), height, (GLdouble)(j + 1));
+			glVertex3d((GLdouble)(i + 1), height, (GLdouble)j);
+		}
+	}
+	glEnd();
+}
 
 void cube(void)
 {
@@ -105,6 +133,9 @@ void display(void)
 	//}
 	//glEnd();
 
+
+	myGround(0.0);
+
 	/* ê}å`ÇÃï`âÊ */
 	cube();
 
@@ -112,6 +143,7 @@ void display(void)
 	glPushMatrix();
 	glTranslated(1.0, 1.0, 1.0);
 	glRotated((double)(2 * r), 0.0, 1.0, 0.0);
+	glTranslatef(0.0,0.0,0.1);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
 	cube();
 	glPopMatrix();
@@ -181,6 +213,37 @@ void keyboard(unsigned char key, int x, int y)
 	}
 }
 
+void joystick(unsigned int ButtonMask, int x, int y, int z)
+{
+	if (300 < x)
+	{
+		printf("âE");
+	}
+	if (x<-300) printf("ç∂");
+	if (300<y) printf("â∫");
+	if (y<-300) printf("è„");
+
+	if (ButtonMask & 1) 
+	{
+		printf("A");
+		glutIdleFunc(idle);
+	}
+	else {
+		/* ÉAÉjÉÅÅ[ÉVÉáÉìí‚é~ */
+		glutIdleFunc(0);
+	}
+	if (ButtonMask & 2) printf("B");
+	if (ButtonMask & 4) printf("X");
+	if (ButtonMask & 8) printf("Y");
+	if (ButtonMask & 16) printf("L2");
+	if (ButtonMask & 32) printf("R2");
+	if (ButtonMask & 64) printf("L1");
+	if (ButtonMask & 128) printf("R1");
+	if (ButtonMask & 256) printf("START");
+	if (ButtonMask & 512) printf("SELECT");
+
+	//glutPostRedisplay();/* âÊñ çƒï`âÊ */
+}
 void init(void)
 {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -206,6 +269,7 @@ int main(int argc, char *argv[])
 	glutReshapeFunc(resize);
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboard);
+	glutJoystickFunc(joystick, 10);
 	init();
 	glutMainLoop();
 	return 0;

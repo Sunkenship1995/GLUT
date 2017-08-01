@@ -101,6 +101,9 @@ void display(void)
 	int j;
 	static int r = 0; /* ‰ñ“]Šp */
 
+	static float x = 0.0f;
+	bool flag = false;
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glLoadIdentity();
@@ -116,7 +119,9 @@ void display(void)
 	glPushMatrix();
 
 	/* }Œ`‚Ì‰ñ“] */
-	glRotated((double)r, 0.0, 1.0, 0.0);
+	//glRotated((double)r, 0.0, 1.0, 0.0);
+
+	glTranslated(0.5*x,0.0f,0.0f);
 
 	/* }Œ`‚ÌF (Ô)  */
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
@@ -139,14 +144,14 @@ void display(void)
 	/* }Œ`‚Ì•`‰æ */
 	cube();
 
-	/* “ñ‚Â–Ú‚Ì}Œ`‚Ì•`‰æ */
-	glPushMatrix();
-	glTranslated(1.0, 1.0, 1.0);
-	glRotated((double)(2 * r), 0.0, 1.0, 0.0);
-	glTranslatef(0.0,0.0,0.1);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
-	cube();
-	glPopMatrix();
+	///* “ñ‚Â–Ú‚Ì}Œ`‚Ì•`‰æ */
+	//glPushMatrix();
+	//glTranslated(1.0, 1.0, 1.0);
+	//glRotated((double)(2 * r), 0.0, 1.0, 0.0);
+	//glTranslatef(0.0,0.0,0.1);
+	//glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+	//cube();
+	//glPopMatrix();
 
 	/* ƒ‚ƒfƒ‹ƒrƒ…[•ÏŠ·s—ñ‚Ì•œ‹A */
 	glPopMatrix();
@@ -155,6 +160,8 @@ void display(void)
 
 	/* ˆêü‰ñ‚Á‚½‚ç‰ñ“]Šp‚ğ 0 ‚É–ß‚· */
 	if (++r >= 360) r = 0;
+
+	if (++x >= 50)x = 0.0f;
 
 }
 
@@ -173,7 +180,7 @@ void resize(int w, int h)
 	/* ƒ‚ƒfƒ‹ƒrƒ…[•ÏŠ·s—ñ‚Ìİ’è */
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(3.0, 4.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(3.0, 4.0, 5.0, 0.0, 0.0, 0.0, 0.0, 50.0, 0.0);
 }
 
 
@@ -225,7 +232,6 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 
 	if (ButtonMask & 1) 
 	{
-		printf("A");
 		glutIdleFunc(idle);
 	}
 	else {

@@ -6,6 +6,15 @@
 #define W 6                        /* 地面の幅の２分の１　 */
 #define D 9                        /* 地面の長さの２分の１ */
 
+bool moveRight = false;
+bool moveLeft = false;
+bool moveUp = false;
+bool moveDown = false;
+
+static float moveX = 0.0f;
+static float moveY = 0.0f;
+static float moveZ = 0.0f;
+
 GLdouble vertex[][3] = {
 	{ 0.0, 0.0, 0.0 },
 	{ 1.0, 0.0, 0.0 },
@@ -101,7 +110,7 @@ void display(void)
 	int j;
 	static int r = 0; /* 回転角 */
 
-	static float x = 0.0f;
+	
 	bool flag = false;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -109,7 +118,7 @@ void display(void)
 	glLoadIdentity();
 
 	/* 視点位置と視線方向 */
-	gluLookAt(3.0, 4.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(30.0, 40.0, 50.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
 	/* 光源の位置設定 */
 	glLightfv(GL_LIGHT0, GL_POSITION, light0pos);
@@ -120,8 +129,8 @@ void display(void)
 
 	/* 図形の回転 */
 	//glRotated((double)r, 0.0, 1.0, 0.0);
+	glTranslated(moveX, moveY, moveZ);
 
-	glTranslated(0.5*x,0.0f,0.0f);
 
 	/* 図形の色 (赤)  */
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
@@ -161,7 +170,8 @@ void display(void)
 	/* 一周回ったら回転角を 0 に戻す */
 	if (++r >= 360) r = 0;
 
-	if (++x >= 50)x = 0.0f;
+	if (moveX >= 50)moveX = 0.0f;
+	if (moveZ >= 50)moveZ = 0.0f;
 
 }
 
@@ -191,6 +201,7 @@ void mouse(int button, int state, int x, int y)
 		if (state == GLUT_DOWN) {
 			/* アニメーション開始 */
 			glutIdleFunc(idle);
+			
 		}
 		else {
 			/* アニメーション停止 */
@@ -224,19 +235,50 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 {
 	if (300 < x)
 	{
-		printf("右");
+		
+		glutIdleFunc(idle);
+		++moveX;
 	}
-	if (x<-300) printf("左");
-	if (300<y) printf("下");
-	if (y<-300) printf("上");
+	else {
+		moveRight = false;
+		/* アニメーション停止 */
+		glutIdleFunc(0);
+	}
+	if (x<-300)
+	{
+		
+		glutIdleFunc(idle);
+		--moveX;
+	}
+	else {
+		moveLeft = false;
+		/* アニメーション停止 */
+		glutIdleFunc(0);
+	}
+	if (300<y)
+	{
+		
+		glutIdleFunc(idle);
+		++moveZ;
+	}
+	else {
+		moveDown = false;
+		/* アニメーション停止 */
+		glutIdleFunc(0);
+	}
+	if (y<-300)
+	{
+		glutIdleFunc(idle);
+		--moveZ;
+	}
+	else {
+		moveUp = false;
+		/* アニメーション停止 */
+		glutIdleFunc(0);
+	}
 
 	if (ButtonMask & 1) 
 	{
-		glutIdleFunc(idle);
-	}
-	else {
-		/* アニメーション停止 */
-		glutIdleFunc(0);
 	}
 	if (ButtonMask & 2) printf("B");
 	if (ButtonMask & 4) printf("X");
@@ -248,7 +290,7 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 	if (ButtonMask & 256) printf("START");
 	if (ButtonMask & 512) printf("SELECT");
 
-	//glutPostRedisplay();/* 画面再描画 */
+	glutPostRedisplay();/* 画面再描画 */
 }
 void init(void)
 {
@@ -268,11 +310,13 @@ void init(void)
 
 int main(int argc, char *argv[])
 {
+	glutInitWindowSize(640, 480);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow(argv[0]);
 	glutDisplayFunc(display);
 	glutReshapeFunc(resize);
+	
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboard);
 	glutJoystickFunc(joystick, 10);

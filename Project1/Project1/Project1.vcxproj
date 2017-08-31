@@ -73,6 +73,9 @@
     <ClCompile Include="prog1.cpp" />
     <ClCompile Include="prog2.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="prog3.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

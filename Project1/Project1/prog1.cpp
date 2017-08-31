@@ -61,30 +61,79 @@ GLfloat green[] = { 0.0, 1.0, 0.0, 1.0 };
 GLfloat red[] = { 0.8, 0.2, 0.2, 1.0 };
 GLfloat blue[] = { 0.2, 0.2, 0.8, 1.0 };
 
-static void myGround(double height)
+void scene(void)
 {
-	const static GLfloat ground[][4] = {
+	/* 物体の色 */
+	static GLfloat red[] = { 0.8, 0.2, 0.2, 1.0 };
+	static GLfloat green[] = { 0.2, 0.8, 0.2, 1.0 };
+	static GLfloat blue[] = { 0.2, 0.2, 0.8, 1.0 };
+	static GLfloat yellow[] = { 0.8, 0.8, 0.2, 1.0 };
+	static GLfloat ground[][4] = {
 		{ 0.6, 0.6, 0.6, 1.0 },
 		{ 0.3, 0.3, 0.3, 1.0 }
 	};
 
 	int i, j;
 
+	/* 赤い箱 */
+	glPushMatrix();
+	glTranslated(0.0, 0.0, -3.0);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, red);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	/* 緑の箱 */
+	glPushMatrix();
+	glTranslated(0.0, 0.0, 3.0);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, green);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	/* 青い箱 */
+	glPushMatrix();
+	glTranslated(-3.0, 0.0, 0.0);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, blue);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	/* 黄色い箱 */
+	glPushMatrix();
+	glTranslated(3.0, 0.0, 0.0);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, yellow);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	/* 地面 */
 	glBegin(GL_QUADS);
 	glNormal3d(0.0, 1.0, 0.0);
-	for (j = -D; j < D; ++j) {
-		for (i = -W; i < W; ++i) {
+	for (j = -5; j < 5; ++j) {
+		for (i = -5; i < 5; ++i) {
 			glMaterialfv(GL_FRONT, GL_DIFFUSE, ground[(i + j) & 1]);
-			glVertex3d((GLdouble)i, height, (GLdouble)j);
-			glVertex3d((GLdouble)i, height, (GLdouble)(j + 1));
-			glVertex3d((GLdouble)(i + 1), height, (GLdouble)(j + 1));
-			glVertex3d((GLdouble)(i + 1), height, (GLdouble)j);
+			glVertex3d((GLdouble)i, -0.5, (GLdouble)j);
+			glVertex3d((GLdouble)i, -0.5, (GLdouble)(j + 1));
+			glVertex3d((GLdouble)(i + 1), -0.5, (GLdouble)(j + 1));
+			glVertex3d((GLdouble)(i + 1), -0.5, (GLdouble)j);
 		}
 	}
 	glEnd();
 }
 
 void cube(void)
+{
+	int i;
+	int j;
+
+	glBegin(GL_QUADS);
+	for (j = 0; j < 6; ++j) {
+		glNormal3dv(normal[j]);
+		for (i = 0; i < 4; ++i) {
+			glVertex3dv(vertex[face[j][i]]);
+		}
+	}
+	glEnd();
+}
+
+void cube2(void)
 {
 	int i;
 	int j;
@@ -118,7 +167,9 @@ void display(void)
 	glLoadIdentity();
 
 	/* 視点位置と視線方向 */
-	gluLookAt(30.0, 40.0, 50.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(30.0 +moveX, 30.0 + moveY, 30.0 + moveZ,
+				moveX, moveY, moveZ, 
+				0.0, 1.0, 0.0);
 
 	/* 光源の位置設定 */
 	glLightfv(GL_LIGHT0, GL_POSITION, light0pos);
@@ -127,43 +178,18 @@ void display(void)
 	/* モデルビュー変換行列の保存 */
 	glPushMatrix();
 
-	/* 図形の回転 */
-	//glRotated((double)r, 0.0, 1.0, 0.0);
 	glTranslated(moveX, moveY, moveZ);
-
 
 	/* 図形の色 (赤)  */
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
-	///* 図形の描画 */
-	//glColor3d(0.0, 0.0, 0.0);
-	//glBegin(GL_QUADS);
-	//for (j = 0; j < 6; ++j) {
-	//	//glColor3dv(color[j]);
-	//	glNormal3dv(normal[j]);
-	//	for (i = 0; i < 4; ++i) {
-	//		glVertex3dv(vertex[face[j][i]]);
-	//	}
-	//}
-	//glEnd();
-
-
-	myGround(0.0);
-
 	/* 図形の描画 */
 	cube();
 
-	///* 二つ目の図形の描画 */
-	//glPushMatrix();
-	//glTranslated(1.0, 1.0, 1.0);
-	//glRotated((double)(2 * r), 0.0, 1.0, 0.0);
-	//glTranslatef(0.0,0.0,0.1);
-	//glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
-	//cube();
-	//glPopMatrix();
-
 	/* モデルビュー変換行列の復帰 */
 	glPopMatrix();
+
+	scene();
 
 	glutSwapBuffers();
 
@@ -289,6 +315,7 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 	if (ButtonMask & 128) printf("R1");
 	if (ButtonMask & 256) printf("START");
 	if (ButtonMask & 512) printf("SELECT");
+
 
 	glutPostRedisplay();/* 画面再描画 */
 }

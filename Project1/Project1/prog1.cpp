@@ -2,18 +2,29 @@
 #include <gl\glut.h>
 #include <Xinput.h>
 #include <stdio.h>
+#include <math.h>
 
 #define W 6                        /* 地面の幅の２分の１　 */
 #define D 9                        /* 地面の長さの２分の１ */
 
+#define WIDTH 320
+#define HEIGHT 240
+
+#define PAI 3.14159
+
+int Mouse_X, Mouse_Y;
+
+//　移動フラグ
 bool moveRight = false;
 bool moveLeft = false;
 bool moveUp = false;
 bool moveDown = false;
 
+//　移動方向
 static float moveX = 0.0f;
 static float moveY = 0.0f;
 static float moveZ = 0.0f;
+
 
 GLdouble vertex[][3] = {
 	{ 0.0, 0.0, 0.0 },
@@ -153,6 +164,54 @@ void idle(void)
 	glutPostRedisplay();
 }
 
+//クォータニオン構造体
+struct Quaternion
+{
+	double w;
+	double x;
+	double y;
+	double z;
+};
+//回転マトリックス
+double Rotate[16];
+
+Quaternion Target;
+Quaternion current = { 1.0, 0.0, 0.0, 0.0 };
+
+//演算子のオーバーロード Quaternionの積
+Quaternion & operator *(Quaternion &q1, Quaternion &q2)
+{
+	Quaternion q0 = {
+		q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z,
+		q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
+		q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
+		q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
+	};
+	q1 = q0;
+	return q1;
+}
+
+//クォータニオンから回転行列を算出
+void qtor(double *r, Quaternion q)
+{
+	double xx = q.x * q.x * 2.0;
+	double yy = q.y * q.y * 2.0;
+	double zz = q.z * q.z * 2.0;
+	double xy = q.x * q.y * 2.0;
+	double yz = q.y * q.z * 2.0;
+	double zx = q.z * q.x * 2.0;
+	double xw = q.x * q.w * 2.0;
+	double yw = q.y * q.w * 2.0;
+	double zw = q.z * q.w * 2.0;
+	double r1[16] = { 1.0 - yy - zz, xy + zw, zx - yw, 0.0,
+		xy - zw, 1.0 - zz - xx, yz + xw, 0.0,
+		zx + yw, yz - xw, 1.0 - xx - yy, 0.0,
+		0.0, 0.0, 0.0, 1.0 };
+	for (int i = 0; i < 16; i++) {
+		r[i] = r1[i];
+	}
+}
+
 void display(void)
 {
 	int i;
@@ -174,6 +233,9 @@ void display(void)
 	/* 光源の位置設定 */
 	glLightfv(GL_LIGHT0, GL_POSITION, light0pos);
 	glLightfv(GL_LIGHT1, GL_POSITION, light1pos);
+
+	//クォータニオンによる回転
+	glMultMatrixd(Rotate);
 
 	/* モデルビュー変換行列の保存 */
 	glPushMatrix();
@@ -220,28 +282,39 @@ void resize(int w, int h)
 }
 
 
+void mousemove(int x, int y)
+{
+	//移動量を計算
+	double dx = (x - Mouse_X) * 1.33 / WIDTH;
+	double dy = (y - Mouse_Y) * 1.0 / HEIGHT;
+
+	//クォータニオンの長さ
+	double length = sqrt(dx * dx + dy * dy);
+
+	if (length != 0.0) {
+		double radian = length * PAI;
+		double theta = sin(radian) / length;
+		Quaternion after = { cos(radian), dy * theta, dx * theta, 0.0 };//回転後の姿勢
+
+		Target = after * current;
+
+		qtor(Rotate, Target);
+	}
+}
 void mouse(int button, int state, int x, int y)
 {
-	switch (button) {
-	case GLUT_LEFT_BUTTON:
-		if (state == GLUT_DOWN) {
-			/* アニメーション開始 */
-			glutIdleFunc(idle);
-			
+	if (button){
+		switch (state){
+		case GLUT_DOWN://マウスボタンを押した位置を記憶
+			Mouse_X = x;
+			Mouse_Y = y;
+			break;
+		case GLUT_UP://姿勢を保存
+			current = Target;
+			break;
+		default:
+			break;
 		}
-		else {
-			/* アニメーション停止 */
-			glutIdleFunc(0);
-		}
-		break;
-	case GLUT_RIGHT_BUTTON:
-		if (state == GLUT_DOWN) {
-			/* コマ送り (1ステップだけ進める) */
-			glutPostRedisplay();
-		}
-		break;
-	default:
-		break;
 	}
 }
 
@@ -259,6 +332,8 @@ void keyboard(unsigned char key, int x, int y)
 
 void joystick(unsigned int ButtonMask, int x, int y, int z)
 {
+
+	// 右移動
 	if (300 < x)
 	{
 		
@@ -270,6 +345,8 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 		/* アニメーション停止 */
 		glutIdleFunc(0);
 	}
+
+	// 左移動
 	if (x<-300)
 	{
 		
@@ -281,6 +358,8 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 		/* アニメーション停止 */
 		glutIdleFunc(0);
 	}
+
+	// 前移動
 	if (300<y)
 	{
 		
@@ -292,6 +371,8 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 		/* アニメーション停止 */
 		glutIdleFunc(0);
 	}
+
+	// 後ろ移動
 	if (y<-300)
 	{
 		glutIdleFunc(idle);
@@ -303,14 +384,42 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 		glutIdleFunc(0);
 	}
 
+	// 左回転
+	if (ButtonMask & 16)
+	{
+		glutIdleFunc(idle);
+		printf("L2");
+		
+	}
+	else
+	{
+		/* アニメーション停止 */
+		glutIdleFunc(0);
+	}
+
+	//　右回転
+	if (ButtonMask & 32)
+	{
+		glutIdleFunc(idle);
+		printf("R2");
+		
+	}
+	else
+	{
+		/* アニメーション停止 */
+		glutIdleFunc(0);
+	}
+
+
+
+
 	if (ButtonMask & 1) 
 	{
 	}
 	if (ButtonMask & 2) printf("B");
 	if (ButtonMask & 4) printf("X");
 	if (ButtonMask & 8) printf("Y");
-	if (ButtonMask & 16) printf("L2");
-	if (ButtonMask & 32) printf("R2");
+	
 	if (ButtonMask & 64) printf("L1");
 	if (ButtonMask & 128) printf("R1");
 	if (ButtonMask & 256) printf("START");
@@ -333,6 +442,8 @@ void init(void)
 	glEnable(GL_LIGHT1);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, green);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, green);
+
+	qtor(Rotate, current);
 }
 
 int main(int argc, char *argv[])
@@ -345,6 +456,7 @@ int main(int argc, char *argv[])
 	glutReshapeFunc(resize);
 	
 	glutMouseFunc(mouse);
+	glutMotionFunc(mousemove);
 	glutKeyboardFunc(keyboard);
 	glutJoystickFunc(joystick, 10);
 	init();

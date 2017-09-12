@@ -25,6 +25,8 @@ static float moveX = 0.0f;
 static float moveY = 0.0f;
 static float moveZ = 0.0f;
 
+int rote = 0;
+
 
 GLdouble vertex[][3] = {
 	{ 0.0, 0.0, 0.0 },
@@ -285,16 +287,16 @@ void resize(int w, int h)
 void mousemove(int x, int y)
 {
 	//移動量を計算
-	double dx = (x - Mouse_X) * 1.33 / WIDTH;
-	double dy = (y - Mouse_Y) * 1.0 / HEIGHT;
+	double dx = (rote - Mouse_X) * 1.33 / WIDTH;
+	//double dy = (y - Mouse_Y) * 1.0 / HEIGHT;
 
 	//クォータニオンの長さ
-	double length = sqrt(dx * dx + dy * dy);
+	double length = sqrt(dx * dx);
 
 	if (length != 0.0) {
 		double radian = length * PAI;
 		double theta = sin(radian) / length;
-		Quaternion after = { cos(radian), dy * theta, dx * theta, 0.0 };//回転後の姿勢
+		Quaternion after = { cos(radian), 0.0, dx * theta, 0.0 };//回転後の姿勢
 
 		Target = after * current;
 
@@ -389,7 +391,24 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 	{
 		glutIdleFunc(idle);
 		printf("L2");
-		
+		rote += 10;
+
+		//移動量を計算
+		double dx = (rote - Mouse_X) * 1.33 / WIDTH;
+		//double dy = (y - Mouse_Y) * 1.0 / HEIGHT;
+
+		//クォータニオンの長さ
+		double length = sqrt(dx * dx);
+
+		if (length != 0.0) {
+			double radian = length * PAI;
+			double theta = sin(radian) / length;
+			Quaternion after = { cos(radian), 0.0, dx * theta, 0.0 };//回転後の姿勢
+
+			Target = after * current;
+
+			qtor(Rotate, Target);
+		}
 	}
 	else
 	{
@@ -402,6 +421,25 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 	{
 		glutIdleFunc(idle);
 		printf("R2");
+
+		rote -= 10;
+
+		//移動量を計算
+		double dx = (rote - Mouse_X) * 1.33 / WIDTH;
+		//double dy = (y - Mouse_Y) * 1.0 / HEIGHT;
+
+		//クォータニオンの長さ
+		double length = sqrt(dx * dx);
+
+		if (length != 0.0) {
+			double radian = length * PAI;
+			double theta = sin(radian) / length;
+			Quaternion after = { cos(radian), 0.0, dx * theta, 0.0 };//回転後の姿勢
+
+			Target = after * current;
+
+			qtor(Rotate, Target);
+		}
 		
 	}
 	else

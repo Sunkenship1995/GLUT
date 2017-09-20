@@ -481,6 +481,7 @@ void init(void)
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, green);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, green);
 
+
 	qtor(Rotate, current);
 }
 
@@ -492,7 +493,6 @@ int main(int argc, char *argv[])
 	glutCreateWindow(argv[0]);
 	glutDisplayFunc(display);
 	glutReshapeFunc(resize);
-	
 	glutMouseFunc(mouse);
 	glutMotionFunc(mousemove);
 	glutKeyboardFunc(keyboard);

@@ -25,6 +25,13 @@ static float moveX = 0.0f;
 static float moveY = 0.0f;
 static float moveZ = 0.0f;
 
+//3つのベクトル
+struct Vector3f{
+	float x;
+	float y;
+	float z;
+}vec3d;
+
 int rote = 0;
 
 
@@ -146,20 +153,6 @@ void cube(void)
 	glEnd();
 }
 
-void cube2(void)
-{
-	int i;
-	int j;
-
-	glBegin(GL_QUADS);
-	for (j = 0; j < 6; ++j) {
-		glNormal3dv(normal[j]);
-		for (i = 0; i < 4; ++i) {
-			glVertex3dv(vertex[face[j][i]]);
-		}
-	}
-	glEnd();
-}
 
 void idle(void)
 {
@@ -178,7 +171,7 @@ struct Quaternion
 double Rotate[16];
 
 Quaternion Target;
-Quaternion current = { 1.0, 0.0, 0.0, 0.0 };
+Quaternion current = {1.0, 0.0, 0.0, 0.0 };
 
 //演算子のオーバーロード Quaternionの積
 Quaternion & operator *(Quaternion &q1, Quaternion &q2)
@@ -228,7 +221,7 @@ void display(void)
 	glLoadIdentity();
 
 	/* 視点位置と視線方向 */
-	gluLookAt(30.0 +moveX, 30.0 + moveY, 30.0 + moveZ,
+	gluLookAt(moveX, 30.0 + moveY, 30.0 + moveZ,
 				moveX, moveY, moveZ, 
 				0.0, 1.0, 0.0);
 
@@ -243,6 +236,7 @@ void display(void)
 	glPushMatrix();
 
 	glTranslated(moveX, moveY, moveZ);
+	glRotatef(rote, 0, 1, 0);
 
 	/* 図形の色 (赤)  */
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
@@ -284,41 +278,41 @@ void resize(int w, int h)
 }
 
 
-void mousemove(int x, int y)
-{
-	//移動量を計算
-	double dx = (rote - Mouse_X) * 1.33 / WIDTH;
-	//double dy = (y - Mouse_Y) * 1.0 / HEIGHT;
-
-	//クォータニオンの長さ
-	double length = sqrt(dx * dx);
-
-	if (length != 0.0) {
-		double radian = length * PAI;
-		double theta = sin(radian) / length;
-		Quaternion after = { cos(radian), 0.0, dx * theta, 0.0 };//回転後の姿勢
-
-		Target = after * current;
-
-		qtor(Rotate, Target);
-	}
-}
-void mouse(int button, int state, int x, int y)
-{
-	if (button){
-		switch (state){
-		case GLUT_DOWN://マウスボタンを押した位置を記憶
-			Mouse_X = x;
-			Mouse_Y = y;
-			break;
-		case GLUT_UP://姿勢を保存
-			current = Target;
-			break;
-		default:
-			break;
-		}
-	}
-}
+//void mousemove(int x, int y)
+//{
+//	//移動量を計算
+//	double dx = (rote - Mouse_X) * 1.33 / WIDTH;
+//	//double dy = (y - Mouse_Y) * 1.0 / HEIGHT;
+//
+//	//クォータニオンの長さ
+//	double length = sqrt(dx * dx);
+//
+//	if (length != 0.0) {
+//		double radian = length * PAI;
+//		double theta = sin(radian) / length;
+//		Quaternion after = { cos(radian), 0.0, dx * theta, 0.0 };//回転後の姿勢
+//
+//		Target = after * current;
+//
+//		qtor(Rotate, Target);
+//	}
+//}
+//void mouse(int button, int state, int x, int y)
+//{
+//	if (button){
+//		switch (state){
+//		case GLUT_DOWN://マウスボタンを押した位置を記憶
+//			Mouse_X = x;
+//			Mouse_Y = y;
+//			break;
+//		case GLUT_UP://姿勢を保存
+//			current = Target;
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//}
 
 void keyboard(unsigned char key, int x, int y)
 {
@@ -391,11 +385,10 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 	{
 		glutIdleFunc(idle);
 		printf("L2");
-		rote += 10;
+		rote += 1;
 
 		//移動量を計算
 		double dx = (rote - Mouse_X) * 1.33 / WIDTH;
-		//double dy = (y - Mouse_Y) * 1.0 / HEIGHT;
 
 		//クォータニオンの長さ
 		double length = sqrt(dx * dx);
@@ -422,11 +415,10 @@ void joystick(unsigned int ButtonMask, int x, int y, int z)
 		glutIdleFunc(idle);
 		printf("R2");
 
-		rote -= 10;
+		rote -= 1;
 
 		//移動量を計算
 		double dx = (rote - Mouse_X) * 1.33 / WIDTH;
-		//double dy = (y - Mouse_Y) * 1.0 / HEIGHT;
 
 		//クォータニオンの長さ
 		double length = sqrt(dx * dx);
@@ -481,6 +473,10 @@ void init(void)
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, green);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, green);
 
+	//任意軸のベクトルを設定
+	vec3d.x = 0.0f;
+	vec3d.y = 0.0f;
+	vec3d.z = 90.0f;
 
 	qtor(Rotate, current);
 }
@@ -493,8 +489,8 @@ int main(int argc, char *argv[])
 	glutCreateWindow(argv[0]);
 	glutDisplayFunc(display);
 	glutReshapeFunc(resize);
-	glutMouseFunc(mouse);
-	glutMotionFunc(mousemove);
+	//glutMouseFunc(mouse);
+	//glutMotionFunc(mousemove);
 	glutKeyboardFunc(keyboard);
 	glutJoystickFunc(joystick, 10);
 	init();

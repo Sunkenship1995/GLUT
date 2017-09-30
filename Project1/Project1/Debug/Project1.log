@@ -1,17 +1,18 @@
-﻿2017/09/20 21:57:09 にビルドを開始しました。
+﻿2017/09/20 23:02:53 にビルドを開始しました。
      1>ノード 2 上のプロジェクト "D:\N1\GLUT\Project1\Project1\Project1.vcxproj" (Build ターゲット)。
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt /FS prog1.cpp
          prog1.cpp
-     1>d:\n1\glut\project1\project1\prog1.cpp(74): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
-     1>d:\n1\glut\project1\project1\prog1.cpp(75): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
-     1>d:\n1\glut\project1\project1\prog1.cpp(80): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
      1>d:\n1\glut\project1\project1\prog1.cpp(81): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
      1>d:\n1\glut\project1\project1\prog1.cpp(82): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
-     1>d:\n1\glut\project1\project1\prog1.cpp(83): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
      1>d:\n1\glut\project1\project1\prog1.cpp(87): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
-     1>d:\n1\glut\project1\project1\prog1.cpp(219): warning C4101: 'i' : ローカル変数は 1 度も使われていません。
-     1>d:\n1\glut\project1\project1\prog1.cpp(220): warning C4101: 'j' : ローカル変数は 1 度も使われていません。
+     1>d:\n1\glut\project1\project1\prog1.cpp(88): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
+     1>d:\n1\glut\project1\project1\prog1.cpp(89): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
+     1>d:\n1\glut\project1\project1\prog1.cpp(90): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
+     1>d:\n1\glut\project1\project1\prog1.cpp(94): warning C4305: '初期化中' : 'double' から 'GLfloat' へ切り詰めます。
+     1>d:\n1\glut\project1\project1\prog1.cpp(239): warning C4244: '引数' : 'int' から 'GLfloat' への変換です。データが失われる可能性があります。
+     1>d:\n1\glut\project1\project1\prog1.cpp(212): warning C4101: 'i' : ローカル変数は 1 度も使われていません。
+     1>d:\n1\glut\project1\project1\prog1.cpp(213): warning C4101: 'j' : ローカル変数は 1 度も使われていません。
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\N1\GLUT\Project1\Debug\Project1.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\N1\GLUT\Project1\Debug\Project1.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\N1\GLUT\Project1\Debug\Project1.lib" /MACHINE:X86 Debug\prog1.obj
          Debug\prog2.obj
@@ -20,4 +21,4 @@
 
 ビルドに成功しました。
 
-経過時間 00:00:00.48
+経過時間 00:00:00.46
